@@ -146,7 +146,7 @@ def update_synapse_nbs(manager: NotebookDirectoryManager) -> int:
             logger.error(f"Unable to update Synapse notebook '{synnb.name}': {e}")
             ret |= 1
         else:
-            logger.info(f"Successfully updated '{synnb.name}' from '{ipynb.name}'")
+            logger.info(f"Updated '{synnb.name}' from '{ipynb.name}'")
             ret |= 0
     return ret
 
@@ -157,10 +157,10 @@ def delete_files(files: list[Path]) -> int:
         try:
             f.unlink()
         except FileNotFoundError as e:
-            logger.error(f"Unable to delete {f}: {e}")
+            logger.error(f"Unable to delete '{f.name}': {e}")
             ret |= 1
         else:
-            logger.info(f"Deleted {f.name}")
+            logger.info(f"Deleted '{f.name}'")
             ret |= 0
     return ret
 
