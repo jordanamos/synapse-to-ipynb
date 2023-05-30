@@ -19,7 +19,9 @@ pip install git+https://github.com/jordanamos/synapse-to-ipynb
 
 ## Usage
 
-1. Create ipynbs from Synapse notebooks. The source Synapse directory is considered the point of truth and so the default behaviour is that if the target already contains .ipynb files, ones that don't have a matching Synapse notebook will be deleted:
+1. Create Synapse notebooks directly in Synapse
+
+2. Create ipynbs from Synapse notebooks. The source Synapse directory is considered the point of truth and so the default behaviour is that if the target already contains .ipynb files, ones that don't have a matching Synapse notebook will be deleted:
 
     ```
     synapse-to-ipynb --source <synapse_directory> --target <ipython_directory>
@@ -28,9 +30,9 @@ pip install git+https://github.com/jordanamos/synapse-to-ipynb
     - `--source`: The source directory containing Synapse notebooks (.json).
     - `--target`: The target directory to store IPython Notebooks (.ipynb).
 
-2. Develop the .ipynb files in your faviourite IDE
+3. Develop the .ipynb files in your faviourite IDE
 
-3. To migrate the changes back to Synapse use the `--update` flag:
+4. To migrate the changes back to Synapse use the `--update` flag:
     ```
     synapse-to-ipynb --source <synapse_directory> --target <ipython_directory> --update
     ```
@@ -40,7 +42,7 @@ pip install git+https://github.com/jordanamos/synapse-to-ipynb
 
 ## Contributing
 
-FeedBback and contributions are welcome! If you encounter any issues or have suggestions for improvement, please create an issue or submit a pull request.
+Feedback and contributions are welcome! If you encounter any issues or have suggestions for improvement, please create an issue or submit a pull request.
 
 ## License
 
