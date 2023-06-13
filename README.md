@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/amostj/synapse-to-ipynb/_apis/build/status%2Fjordanamos.synapse-to-ipynb?branchName=main)](https://dev.azure.com/amostj/synapse-to-ipynb/_build/latest?definitionId=10&branchName=main)
+
 # Synapse-to-IPython Notebook (synapse-to-ipynb)
 
 [Azure Synapse Analytics](https://azure.microsoft.com/en-au/products/synapse-analytics/) uses notebooks for various computational tasks however managing these in a local dev environment and with proper version control is difficult. If this is a problem you have run into, this tool might be for you.
@@ -17,7 +19,7 @@ This program was designed primarily for use in a CI/CD pipeline.
 pip install git+https://github.com/jordanamos/synapse-to-ipynb
 ```
 
-## Usage
+## Workflow and Usage
 
 1. Create Synapse notebooks directly in Synapse
 
