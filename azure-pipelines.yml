@@ -1,0 +1,52 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: validate
+    displayName: Run tests and pre-commit
+    jobs:
+      - job: tests
+        displayName: Run tests
+        strategy:
+          matrix:
+            Python310:
+              python.version: '3.10'
+            Python311:
+              python.version: '3.11'
+          maxParallel: 2
+
+        steps:
+        - task: UsePythonVersion@0
+          inputs:
+            versionSpec: $(python.version)
+          displayName: Use Python $(python.version)
+
+        - script: |
+            python -m pip install --upgrade pip
+            pip install pytest pytest-azurepipelines
+          displayName: 'Install test dependencies'
+
+        - script: |
+            pytest
+          displayName: 'Run pytest'
+
+      - job: pre_commit
+        dependsOn: tests
+        displayName: Run pre-commit
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Use Python 3.11
+            inputs:
+              versionSpec: '3.11'
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pre-commit
+            displayName: Install pre-commit
+
+          - script: |
+              pre-commit run --all-files
+            displayName: Run pre-commit
