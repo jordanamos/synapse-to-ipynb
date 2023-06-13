@@ -68,9 +68,8 @@ def test_main_update_runs_once(temp_dirs):
 def test_main_invalid_args(tmp_path):
     src_dir = str(tmp_path / "a")
     trgt_dir = str(tmp_path / "b")
-    with pytest.raises(NotADirectoryError):
-        main(("--source", src_dir, "--target", trgt_dir))
-        main(("--source", src_dir, "--target", trgt_dir, "--update"))
+    assert main(("--source", src_dir, "--target", trgt_dir)) == 1
+    assert main(("--source", src_dir, "--target", trgt_dir, "--update")) == 1
 
 
 @pytest.mark.parametrize(
@@ -92,7 +91,9 @@ def test_update_flag_error_if_new(manager: NotebookDirectoryManager, caplog):
     with mock.patch("synapse_to_ipynb.NotebookDirectoryManager") as m:
         m.return_value = manager
         assert main(args) == 1
-        assert str([f.name for f in manager.ipynb_only_nbs]) in caplog.text
+        ipynb_stems = [f.stem for f in manager.ipynbs]
+        synnb_stems = [f.stem for f in manager.synapse_nbs]
+        assert f"File names in {synnb_stems} don't match {ipynb_stems}\n" in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -114,7 +115,9 @@ def test_update_flag_error_if_deleted(manager: NotebookDirectoryManager, caplog)
     with mock.patch("synapse_to_ipynb.NotebookDirectoryManager") as m:
         m.return_value = manager
         assert main(args) == 1
-        assert str([f.name for f in m.synapse_only_nbs]) in caplog.text
+        ipynb_stems = [f.stem for f in manager.ipynbs]
+        synnb_stems = [f.stem for f in manager.synapse_nbs]
+        assert f"File names in {synnb_stems} don't match {ipynb_stems}\n" in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -134,7 +137,9 @@ def test_error_if_no_new_or_deleted(manager: NotebookDirectoryManager, caplog):
 
 
 @pytest.mark.parametrize(
-    "manager", ((("j.json", "t.json"), ("j.ipynb", "t.ipynb")),), indirect=True
+    "manager",
+    ((("j.json", "t.json"), ("j.ipynb", "t.ipynb")),),
+    indirect=True,
 )
 def test_manager_init(manager: NotebookDirectoryManager):
     assert len(manager.synapse_nbs) == 2
@@ -150,21 +155,6 @@ def test_dir_args_exist(temp_dirs):
         NotebookDirectoryManager(src_dir, trgt_dir_a)
     with pytest.raises(NotADirectoryError):
         NotebookDirectoryManager(src_dir_a, trgt_dir)
-
-
-@pytest.mark.parametrize(
-    ("left", "right", "expected"),
-    (
-        (["a.json", "b.json"], ["a.ipynb", "b.ipynb"], []),
-        (["a.json", "b.json"], ["a.ipynb", "c.ipynb"], ["b.json"]),
-        (["a.json"], [], ["a.json"]),
-    ),
-)
-def test_diff_files(left, right, expected):
-    left = [Path(f) for f in left]
-    right = [Path(f) for f in right]
-    expected = [Path(f) for f in expected]
-    assert NotebookDirectoryManager._diff_files(left, right) == expected
 
 
 def test_update_synapse_notebook_from_ipynb(tmp_synb, tmp_ipynb):
