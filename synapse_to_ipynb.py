@@ -39,19 +39,12 @@ class NotebookDirectoryManager:
         self.synapse_nbs = sorted(self.synapse_dir.glob("*.json"), key=lambda f: f.stem)
         self.ipynbs = sorted(self.ipynb_dir.glob("**/*.ipynb"), key=lambda f: f.stem)
 
-        self.synapse_only_nbs = self._diff_files(self.synapse_nbs, self.ipynbs)
-        self.ipynb_only_nbs = self._diff_files(self.ipynbs, self.synapse_nbs)
+        def _diff_files(left_files: list[Path], right_files: list[Path]) -> list[Path]:
+            right_stems = [f.stem for f in right_files]
+            return [path for path in left_files if path.stem not in right_stems]
 
-    @staticmethod
-    def _diff_files(left_files: list[Path], right_files: list[Path]) -> list[Path]:
-        """
-        :return:
-            A list of file paths in :left_files: where the filename (minus extension)
-            is not present in :right_files:
-        :rtype: list[Path]
-        """
-        right_stems = [f.stem for f in right_files]
-        return [path for path in left_files if path.stem not in right_stems]
+        self.synapse_only_nbs = _diff_files(self.synapse_nbs, self.ipynbs)
+        self.ipynb_only_nbs = _diff_files(self.ipynbs, self.synapse_nbs)
 
     @staticmethod
     def update_synapse_notebook_from_ipynb(synnb_path: Path, ipynb_path: Path) -> None:
@@ -80,7 +73,7 @@ class NotebookDirectoryManager:
 
             # Update the temporary synpase notebook file's 'cells'
             # property with the ipynb src we read earlier
-            with open(fd, "r+") as f:
+            with open(tmp_notebook_path, "r+") as f:
                 synnb_json = json.load(f)
                 synnb_json["properties"]["cells"] = ipynb_cells
                 f.seek(0)
@@ -213,19 +206,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
-    manager = NotebookDirectoryManager(args.source, args.target)
+
+    try:
+        manager = NotebookDirectoryManager(args.source, args.target)
+    except NotADirectoryError as e:
+        logger.error(e)
+        return 1
+
     ret = 0
 
     if args.update:
         # Handle Modified notebooks
-        if manager.synapse_only_nbs or manager.ipynb_only_nbs:
-            _new = [f.name for f in manager.ipynb_only_nbs]
-            _del = [f.name for f in manager.synapse_only_nbs]
-            logger.error(
-                f"New {_new} or deleted {_del} notebooks have been detected. "
-                "Please create, delete or rename notebooks directly in Synapse."
-            )
-            return 1
         ret = update_synapse_nbs(manager)
     else:
         # Handle New / Deleted / Renamed notebooks
