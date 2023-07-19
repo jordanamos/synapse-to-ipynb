@@ -207,6 +207,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
+    # If we are creating our first Notebook in Synapse, this directory might not exist
+    create_target_dir = not args.update
+    if not args.target.is_dir() and create_target_dir:
+        args.target.mkdir()
+        logger.info(f"Created directory '{args.target}'")
+
     try:
         manager = NotebookDirectoryManager(args.source, args.target)
     except NotADirectoryError as e:
