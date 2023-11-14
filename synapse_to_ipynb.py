@@ -86,7 +86,7 @@ class NotebookDirectoryManager:
             os.remove(tmp_notebook_path)
             raise
 
-    def create_ipynb_from_synapse_nb(self, synapse_nb: Path) -> Path:
+    def create_ipynb_from_synapse_nb(self, synapse_nb_path: Path) -> Path:
         """
         Creates a Jupyter Notebook (.ipynb) from a Synapse Notebook.
 
@@ -95,7 +95,7 @@ class NotebookDirectoryManager:
         """
 
         # Read in the synapse notebook.
-        with open(synapse_nb) as nb:
+        with open(synapse_nb_path) as nb:
             # We're only interested in the 'properties' key.
             synapse_notebook: dict[str, Any] = json.load(nb)["properties"]
 
@@ -115,8 +115,16 @@ class NotebookDirectoryManager:
             cell.setdefault("metadata", {})
 
         # Create the new .ipynb file in the target directory.
-        ipynb_filename = f"{synapse_nb.stem}.ipynb"
-        ipynb_path = self.ipynb_dir / ipynb_filename
+        ipynb_filename = f"{synapse_nb_path.stem}.ipynb"
+
+        try:
+            sub_dir = str(synapse_notebook["folder"]["name"])
+        except KeyError:
+            sub_dir = None
+
+        ipynb_dir = (self.ipynb_dir / sub_dir) if sub_dir else self.ipynb_dir
+        ipynb_dir.mkdir(exist_ok=True, parents=True)
+        ipynb_path = ipynb_dir / ipynb_filename
         with open(ipynb_path, "w") as ipynb:
             json.dump(ipynb_data, ipynb, indent=4)
 
