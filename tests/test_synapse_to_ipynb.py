@@ -191,6 +191,17 @@ def test_create_ipynb_from_synapse_nb(
             assert ipynb_data["cells"][i][k] == v
 
 
+def test_create_ipynb_from_synapse_nb_respects_folder_structure(
+    manager: NotebookDirectoryManager, tmp_synb: Path
+):
+    ipynb = manager.create_ipynb_from_synapse_nb(tmp_synb)
+    # Check we created a file
+    assert ipynb.exists()
+    with open(tmp_synb) as f:
+        synb_data = json.load(f)
+    assert manager.ipynb_dir / synb_data["properties"]["folder"]["name"] == ipynb.parent
+
+
 def test_delete_files(tmp_path):
     files = [(tmp_path / f) for f in ["a", "b", "c", "d"]]
     for f in files:
