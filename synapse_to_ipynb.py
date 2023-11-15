@@ -73,7 +73,7 @@ class NotebookDirectoryManager:
 
             # Update the temporary synpase notebook file's 'cells'
             # property with the ipynb src we read earlier
-            with os.fdopen(fd, "r+") as f:
+            with open(fd, "r+") as f:
                 synnb_json = json.load(f)
                 synnb_json["properties"]["cells"] = ipynb_cells
                 f.seek(0)
