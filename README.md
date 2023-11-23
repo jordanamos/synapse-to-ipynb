@@ -16,7 +16,7 @@ This program was designed primarily for use in a CI/CD pipeline.
 ## Installation
 
 ```
-pip install git+https://github.com/jordanamos/synapse-to-ipynb
+pip install synapse-to-ipynb
 ```
 
 ## Workflow and Usage
