@@ -91,9 +91,10 @@ def test_update_flag_error_if_new(manager: NotebookDirectoryManager, caplog):
     with mock.patch("synapse_to_ipynb.NotebookDirectoryManager") as m:
         m.return_value = manager
         assert main(args) == 1
-        ipynb_stems = [f.stem for f in manager.ipynbs]
-        synnb_stems = [f.stem for f in manager.synapse_nbs]
-        assert f"File names in {synnb_stems} don't match {ipynb_stems}\n" in caplog.text
+        assert (
+            "The file name's in the source directory "
+            "dont't match those in the target directory"
+        ) in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -115,9 +116,10 @@ def test_update_flag_error_if_deleted(manager: NotebookDirectoryManager, caplog)
     with mock.patch("synapse_to_ipynb.NotebookDirectoryManager") as m:
         m.return_value = manager
         assert main(args) == 1
-        ipynb_stems = [f.stem for f in manager.ipynbs]
-        synnb_stems = [f.stem for f in manager.synapse_nbs]
-        assert f"File names in {synnb_stems} don't match {ipynb_stems}\n" in caplog.text
+        assert (
+            "The file name's in the source directory "
+            "dont't match those in the target directory"
+        ) in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -146,6 +148,15 @@ def test_manager_init(manager: NotebookDirectoryManager):
     assert len(manager.ipynbs) == 2
     assert manager.ipynb_only_nbs == []
     assert manager.synapse_only_nbs == []
+
+
+def test_manager_init_error_if_duplicate_files(temp_dirs):
+    src_dir, trgt_dir = temp_dirs
+    (trgt_dir / "f.ipynb").touch()
+    (trgt_dir / "silver").mkdir()
+    (trgt_dir / "silver" / "f.ipynb").touch()
+    with pytest.raises(ValueError):
+        NotebookDirectoryManager(src_dir, trgt_dir)
 
 
 def test_dir_args_exist(temp_dirs):

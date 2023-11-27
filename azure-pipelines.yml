@@ -1,5 +1,5 @@
 trigger:
-- main
+  - main
 
 pool:
   vmImage: ubuntu-latest
@@ -8,39 +8,13 @@ stages:
   - stage: validate
     displayName: Run tests and pre-commit
     jobs:
-      - job: tests
-        displayName: Run tests
-        strategy:
-          matrix:
-            Python310:
-              python.version: '3.10'
-            Python311:
-              python.version: '3.11'
-          maxParallel: 2
-
-        steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: $(python.version)
-          displayName: Use Python $(python.version)
-
-        - script: |
-            python -m pip install --upgrade pip
-            pip install pytest pytest-azurepipelines
-          displayName: 'Install test dependencies'
-
-        - script: |
-            pytest
-          displayName: 'Run pytest'
-
       - job: pre_commit
-        dependsOn: tests
         displayName: Run pre-commit
         steps:
           - task: UsePythonVersion@0
-            displayName: Use Python 3.11
+            displayName: Use Python $(python-version)
             inputs:
-              versionSpec: '3.11'
+              versionSpec: "$(python-version)"
 
           - script: |
               python -m pip install --upgrade pip
@@ -50,3 +24,43 @@ stages:
           - script: |
               pre-commit run --all-files
             displayName: Run pre-commit
+
+      - job: pytest
+        dependsOn: pre_commit
+        displayName: Run tests
+
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Use Python $(python-version)
+            inputs:
+              versionSpec: "$(python-version)"
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pytest pytest-azurepipelines
+            displayName: "Install test dependencies"
+
+          - script: |
+              pytest
+            displayName: "Run pytest"
+  - stage: publish
+    displayName: Upload to PyPI
+    dependsOn: validate
+    jobs:
+      - job: upload
+        displayName: Upload
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Use Python $(python-version)
+            inputs:
+              versionSpec: "$(python-version)"
+          - script: |
+              python -m pip install --upgrade pip
+              python -m pip install --upgrade build setuptools twine
+            displayName: Install Build Dependencies
+          - script: |
+              python -m build
+            displayName: Build sdist And wheel
+          - script: |
+              python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://upload.pypi.org/legacy/ dist/*
+            displayName: Upload to PyPi (Twine)
