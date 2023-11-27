@@ -28,19 +28,12 @@ stages:
       - job: pytest
         dependsOn: pre_commit
         displayName: Run tests
-        strategy:
-          matrix:
-            Python310:
-              python.version: '3.10'
-            Python311:
-              python.version: '3.11'
-          maxParallel: 2
 
         steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: $(python.version)
-          displayName: Use Python $(python.version)
+          - task: UsePythonVersion@0
+            displayName: Use Python 3.11
+            inputs:
+              versionSpec: '3.11'
 
         - script: |
             python -m pip install --upgrade pip
@@ -70,5 +63,5 @@ stages:
               python -m build
             displayName: Build sdist And wheel
           - script: |
-              python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://https://test.pypi.org/legacy/ dist/*
+              python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://test.pypi.org/legacy/ dist/*
             displayName: Upload to PyPi (Twine)
