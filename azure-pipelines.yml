@@ -1,5 +1,5 @@
 trigger:
-- main
+  - main
 
 pool:
   vmImage: ubuntu-latest
@@ -12,9 +12,9 @@ stages:
         displayName: Run pre-commit
         steps:
           - task: UsePythonVersion@0
-            displayName: Use Python 3.11
+            displayName: Use Python $(python-version)
             inputs:
-              versionSpec: '3.11'
+              versionSpec: "$(python-version)"
 
           - script: |
               python -m pip install --upgrade pip
@@ -31,18 +31,18 @@ stages:
 
         steps:
           - task: UsePythonVersion@0
-            displayName: Use Python 3.11
+            displayName: Use Python $(python-version)
             inputs:
-              versionSpec: '3.11'
+              versionSpec: "$(python-version)"
 
           - script: |
               python -m pip install --upgrade pip
               pip install pytest pytest-azurepipelines
-            displayName: 'Install test dependencies'
+            displayName: "Install test dependencies"
 
           - script: |
               pytest
-            displayName: 'Run pytest'
+            displayName: "Run pytest"
   - stage: publish
     displayName: Upload to PyPI
     dependsOn: validate
@@ -51,9 +51,9 @@ stages:
         displayName: Upload
         steps:
           - task: UsePythonVersion@0
-            displayName: Use Python 3.10
+            displayName: Use Python $(python-version)
             inputs:
-              versionSpec: "3.10"
+              versionSpec: "$(python-version)"
           - script: |
               python -m pip install --upgrade pip
               python -m pip install --upgrade build setuptools twine
