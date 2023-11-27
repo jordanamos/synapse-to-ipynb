@@ -62,5 +62,5 @@ stages:
               python -m build
             displayName: Build sdist And wheel
           - script: |
-              python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://test.pypi.org/legacy/ dist/*
+              python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://upload.pypi.org/legacy/ dist/*
             displayName: Upload to PyPi (Twine)
