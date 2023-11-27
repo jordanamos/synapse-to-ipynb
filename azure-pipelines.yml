@@ -35,15 +35,14 @@ stages:
             inputs:
               versionSpec: '3.11'
 
-        - script: |
-            python -m pip install --upgrade pip
-            pip install pytest pytest-azurepipelines
-          displayName: 'Install test dependencies'
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pytest pytest-azurepipelines
+            displayName: 'Install test dependencies'
 
-        - script: |
-            pytest
-          displayName: 'Run pytest'
-
+          - script: |
+              pytest
+            displayName: 'Run pytest'
   - stage: publish
     displayName: Upload to PyPI
     dependsOn: validate
