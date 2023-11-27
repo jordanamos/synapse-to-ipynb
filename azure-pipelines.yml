@@ -24,7 +24,7 @@ stages:
           - script: |
               pre-commit run --all-files
             displayName: Run pre-commit
-            
+
       - job: pytest
         dependsOn: pre_commit
         displayName: Run tests
@@ -72,4 +72,3 @@ stages:
           - script: |
               python -m twine upload --skip-existing --verbose -p $(pypi-api-token) -u __token__ --repository $(pypi-project-name) --repository-url https://https://test.pypi.org/legacy/ dist/*
             displayName: Upload to PyPi (Twine)
-        
