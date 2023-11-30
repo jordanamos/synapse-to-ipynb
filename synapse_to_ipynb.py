@@ -82,7 +82,7 @@ class NotebookDirectoryManager:
         """
 
         # Read the ipynb src that we will use to update the synapse notebook with
-        with open(ipynb_path) as nb:
+        with open(ipynb_path, encoding="utf-8") as nb:
             ipynb_cells = json.load(nb)["cells"]
 
         # Create a temporary notebook file
@@ -95,12 +95,12 @@ class NotebookDirectoryManager:
 
             # Update the temporary synpase notebook file's 'cells'
             # property with the ipynb src we read earlier
-            with open(tmp_notebook_path, "r+") as f:
+            with open(tmp_notebook_path, "r+", encoding="utf-8") as f:
                 synnb_json = json.load(f)
                 synnb_json["properties"]["cells"] = ipynb_cells
                 f.seek(0)
                 f.truncate()
-                json.dump(synnb_json, f, indent=4)
+                json.dump(synnb_json, f, ensure_ascii=False, indent=4)
 
             # Finally, replace the synpase notebook with the updated temporary one
             os.replace(tmp_notebook_path, synnb_path)
@@ -117,7 +117,7 @@ class NotebookDirectoryManager:
         """
 
         # Read in the synapse notebook.
-        with open(synapse_nb_path) as nb:
+        with open(synapse_nb_path, encoding="utf-8") as nb:
             # We're only interested in the 'properties' key.
             synapse_notebook: dict[str, Any] = json.load(nb)["properties"]
 
@@ -147,8 +147,8 @@ class NotebookDirectoryManager:
         ipynb_dir = (self.ipynb_dir / sub_dir) if sub_dir else self.ipynb_dir
         ipynb_dir.mkdir(exist_ok=True, parents=True)
         ipynb_path = ipynb_dir / ipynb_filename
-        with open(ipynb_path, "w") as ipynb:
-            json.dump(ipynb_data, ipynb, indent=4)
+        with open(ipynb_path, "w", encoding="utf-8") as ipynb:
+            json.dump(ipynb_data, ipynb, ensure_ascii=False, indent=4)
 
         return ipynb_path
 
